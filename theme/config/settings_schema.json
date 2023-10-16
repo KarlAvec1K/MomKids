@@ -1,0 +1,122 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Mom and baby essentials",
+    "theme_version": "1.0",
+    "theme_author": "Jubaer Hossen",
+    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
+    "theme_support_url": "https://support.shopify.com/"
+  },
+  {
+    "name": "Logo",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo"
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "min": 50,
+        "max": 250,
+        "step": 10,
+        "default": 200,
+        "unit": "px",
+        "label": "Logo width"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon image",
+        "info": "Will be scaled down to 32 x 32px"
+      }
+    ]
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "header",
+        "content": "General"
+      },
+      {
+        "type": "color",
+        "id": "base_color",
+        "label": "Base",
+        "default": "#444444"
+      },
+      {
+        "type": "color",
+        "id": "accent_color",
+        "label": "Accent",
+        "default": "#797979"
+      },
+      {
+        "type": "color",
+        "id": "highlight_color",
+        "label": "Highlight",
+        "default": "#50C450"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "secondary_background_color",
+        "label": "Secondary background",
+        "default": "#F8F8F8"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Headings"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_header_font",
+        "default": "avenir_next_n6",
+        "label": "Font",
+        "info": "Selecting a different font can affect the speed of your store.[Learn more about system fonts.](https://help.shopify.com/en/manual/online-store/store-speed/improving-speed#fonts)"
+      },
+      {
+        "type": "range",
+        "id": "heading_scale",
+        "min": 100,
+        "max": 150,
+        "step": 5,
+        "unit": "%",
+        "label": "Heading font size scale",
+        "default": 100
+      },
+      {
+        "type": "header",
+        "content": "Body"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "default": "avenir_next_n4",
+        "label": "Font",
+        "info": "Selecting a different font can affect the speed of your store.[Learn more about system fonts.](https://help.shopify.com/en/manual/online-store/store-speed/improving-speed#fonts)"
+      },
+      {
+        "type": "range",
+        "id": "body_scale",
+        "min": 100,
+        "max": 150,
+        "step": 5,
+        "unit": "%",
+        "label": "Body font size scale",
+        "default": 100
+      }
+    ]
+  }
+]

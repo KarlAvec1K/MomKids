@@ -1,0 +1,26 @@
+{
+  "current": {
+    "logo_width": 200,
+    "base_color": "#444444",
+    "accent_color": "#797979",
+    "background_color": "#FFFFFF",
+    "secondary_background_color": "#F8F8F8",
+    "type_header_font": "avenir_next_n6",
+    "heading_scale": 100,
+    "type_body_font": "avenir_next_n4",
+    "body_scale": 100
+  },
+  "presets": {
+    "Default": {
+      "logo_width": 200,
+      "base_color": "#444444",
+      "accent_color": "#797979",
+      "background_color": "#FFFFFF",
+      "secondary_background_color": "#F8F8F8",
+      "type_header_font": "avenir_next_n6",
+      "heading_scale": 100,
+      "type_body_font": "avenir_next_n4",
+      "body_scale": 100
+    }
+  }
+}
