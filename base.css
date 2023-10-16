@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.icon {
+  width: 24px;
+  cursor: pointer;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+input,
+textarea,
+button,
+select {
+  font: inherit;
+}
+
+input {
+  outline: none;
+  border: 1px solid var(--accent-color);
+}
+
+ol,
+ul,
+li {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: var(--base-color);
+}
+
+body {
+  min-height: 100%;
+  font-family: var(--font-body-family);
+  font-style: var(--font-body-style);
+  font-weight: var(--font-body-weight);
+  background-color: var(--primary-background);
+  color: var(--base-color);
+  word-break: break-word;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading-family);
+  font-style: var(--font-heading-style);
+  font-weight: var(--font-heading-weight);
+  word-break: break-word;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+}
+.navbar {
+  transition: left 0.5s ease;
+  left: -100%;
+}
+.navbar.active {
+  transition: left 0.5s ease;
+  left: 0;
+}
+.navbar::-webkit-scrollbar {
+  width: 6px;
+}
+.navbar::-webkit-scrollbar-thumb {
+  background-color: var(--base-color);
+  border-radius: 1rem;
+}
+.navbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent-color);
+}
+.wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-out;
+}
+.wrapper.open {
+  transition: grid-template-rows 0.3s ease-out;
+  grid-template-rows: 1fr;
+}
+.dropdown-child,
+.dropdown-grandchild {
+  overflow: hidden;
+}
+.mobile-search-bar {
+  transition: transform 0.3s ease;
+  transform: translateY(-100%);
+}
+.mobile-search-bar.active {
+  transform: translateY(0);
+}
