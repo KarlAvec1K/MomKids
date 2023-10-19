@@ -1,78 +1,187 @@
 <style>
- .header__logo-img{
+  .header__logo-img{
     width: {{settings.logo_width}}px;
- }
+  }
+  .desktop_nav .main_menu li ul {
+    background-color: white;
+    position: absolute;
+    top: 3.6rem;
+    left: 0;
+    width: 250px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    display: none;
+    z-index: 60;
+  }
+  .desktop_nav .main_menu li ul li {
+    width: 100%;
+  }
+  .desktop_nav .main_menu li ul li ul {
+    left: 230px;
+    top: 0;
+  }
+  .desktop_nav .main_menu li:focus-within > ul,
+  .desktop_nav .main_menu li:hover > ul {
+    display: initial;
+  }
+  #more_menu{
+    left: -200px;
+  }
 </style>
-<header class="header relative bg-white flex items-center justify-between p-4 shadow-md">
+<header class="header relative bg-white shadow-md">
+  <div class="flex items-center justify-between p-4">
     <div class="flex items-center gap-x-4">
-        <span class="hamburger-menu">
-          {% render 'icons' , icon: 'hamburger' %}
-        </span>
-        <a href="{{ routes.root_url }}" class="absolute md:relative left-[50%] md:left-0 translate-x-[-50%] md:translate-x-[0]">
-            {%- if settings.logo != blank -%}
-               <img class="header__logo-img" src="{{ settings.logo | image_url: width: settings.logo_width}} " alt="logo">
-            {%- else -%}
-              <span>{{ shop.name }}</span>
-            {%- endif -%}
-          </a>
+      <span class="hamburger-menu xl:hidden">
+        {% render 'icons', icon: 'hamburger' %}
+      </span>
+      <a
+        href="{{ routes.root_url }}"
+        class="absolute md:relative left-[50%] md:left-0 translate-x-[-50%] md:translate-x-[0]"
+      >
+        {%- if settings.logo != blank -%}
+          <img class="header__logo-img" src="{{ settings.logo | image_url: width: settings.logo_width}} " alt="logo">
+        {%- else -%}
+          <span>{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
     </div>
     <div class="desktop-searchbar hidden md:flex relative w-56 lg:w-80" onclick="showOverlay()">
-        <input type="search" class="p-3 lg:p-2.5 rounded text-xs font-medium w-56 lg:w-80 lg:text-sm" placeholder="{{section.settings.search_box_placeholder_text}}">
-        <span class="absolute right-2 top-1 lg:left-72 lg:top-1">
-          {% render 'icons' , icon: 'search' %}
-        </span>
+      <input
+        type="search"
+        class="p-3 lg:p-2.5 italic rounded text-xs font-medium w-56 lg:w-80 lg:text-sm border-stone-300"
+        placeholder="{{section.settings.search_box_placeholder_text}}"
+      >
+      <span class="absolute right-2 top-1 lg:left-72 lg:top-1">
+        {% render 'icons', icon: 'search' %}
+      </span>
     </div>
     <div class="flex items-center gap-x-2 sm:gap-x-4">
-        <localization-form class="hidden md:block">
-            {% form 'localization' %}
-                <div class="disclosure md:relative">
-                    <button type="button" class="disclosure__button" aria-expanded="false" aria-controls="CountryList">
-                      {{ localization.country.name }} ({{ localization.country.currency.iso_code }}
-                      {{ localization.country.currency.symbol }})
-                      <span class="inline-flex">
-                        {% render 'icons' , icon: 'arrow-bottom' %}
-                      </span>
-                    </button>
-                  <ul id="CountryList" role="list" class="disclosure__list absolute z-10 top-8 w-full shadow-[0px_1px_6px_0px_rgba(0,0,0,0.3)] bg-white p-2" hidden>
-                    {% for country in localization.available_countries %}
-                      <li class="disclosure__item first:mt-0 mt-2" tabindex="-1">
-                        <a
-                          href="#"
-                          {% if country.iso_code == localization.country.iso_code %}
-                            aria-current="true"
-                          {% endif %}
-                          data-value="{{ country.iso_code }}"
-                        >
-                          {{ country.name }} ({{ country.currency.iso_code }}
-                          {{ country.currency.symbol }})
-                        </a>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                  <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
-                </div> 
-            {% endform %}
-        </localization-form>
-        <span class="md:hidden" onclick="showOverlay();handleSearchVisibility()">
-          {% render 'icons' , icon: 'search' %}
-        </span>
-        <span onclick="showOverlay()">
-          {% render 'icons' , icon: 'cart' %}
-        </span>
+      <localization-form class="hidden md:block">
+        {% form 'localization' %}
+          <div class="disclosure md:relative">
+            <button type="button" class="disclosure__button" aria-expanded="false" aria-controls="CountryList">
+              ({{ localization.country.currency.iso_code }}
+              {{ localization.country.currency.symbol }})
+              <span class="inline-flex">
+                {% render 'icons', icon: 'arrow-bottom' %}
+              </span>
+            </button>
+            <ul
+              id="CountryList"
+              role="list"
+              class="disclosure__list absolute z-10 top-8 w-full shadow-[0px_1px_6px_0px_rgba(0,0,0,0.3)] bg-white p-2"
+              hidden
+            >
+              {% for country in localization.available_countries %}
+                <li class="disclosure__item first:mt-0 mt-2" tabindex="-1">
+                  <a
+                    href="#"
+                    {% if country.iso_code == localization.country.iso_code %}
+                      aria-current="true"
+                    {% endif %}
+                    data-value="{{ country.iso_code }}"
+                  >
+                    {{ country.currency.iso_code }}
+                    {{ country.currency.symbol }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+            <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+          </div>
+        {% endform %}
+      </localization-form>
+      <span class="md:hidden" onclick="showOverlay();handleSearchVisibility()">
+        {% render 'icons', icon: 'search' %}
+      </span>
+      <span onclick="showOverlay()">
+        {% render 'icons', icon: 'cart' %}
+      </span>
     </div>
     <div class="mobile-search-bar absolute inset-0 outline-none border-none z-10">
-      <input class="w-full h-full px-4 outline-none border-none" type="search" name="" id="" placeholder="{{section.settings.search_box_placeholder_text}}">
+      <input
+        class="w-full h-full italic px-4 outline-none border-none"
+        type="search"
+        name=""
+        id=""
+        placeholder="{{section.settings.search_box_placeholder_text}}"
+      >
       <span class="absolute right-4 top-3.5">
-        {% render 'icons' , icon: 'search' %}
+        {% render 'icons', icon: 'search' %}
       </span>
       <span class="absolute right-14 top-[18px]" onclick="hideOverlay();handleSearchVisibility()">
-        {% render 'icons' , icon: 'close' %}
+        {% render 'icons', icon: 'close' %}
       </span>
     </div>
+  </div>
+  <nav class="desktop_nav hidden xl:block px-4 font-bold bg-[var(--secondary-background-color)]">
+    <ul class="main_menu flex items-center justify-between">
+      {% for link in section.settings.menu.links limit: section.settings.number_of_menu %}
+        <li class="relative py-4">
+          {%- if link.links != blank -%}
+            <a href="{{ link.url }}">
+              <span>
+                {{- link.title | escape -}}
+              </span>
+            </a>
+            <ul class="p-4 space-y-4 font-medium">
+              {%- for childlink in link.links -%}
+                <li>
+                  {%- if childlink.links == blank -%}
+                    <a href="{{ childlink.url }}">
+                      <span class="transition-colors hover:text-cyan-400">
+                        {{- childlink.title | truncate: 29 | escape -}}
+                      </span>
+                    </a>
+                  {%- else -%}
+                    <a href="{{ childlink.url }}">
+                      <span class="transition-colors hover:text-cyan-400">
+                        {{- childlink.title | truncate: 29 | escape -}}
+                      </span>
+                    </a>
+                    <ul class="p-4 space-y-4">
+                      {%- for grandchildlink in childlink.links -%}
+                        <li>
+                          <a href="{{ grandchildlink.url }}">
+                            <span class="transition-colors hover:text-cyan-400">
+                              {{- grandchildlink.title | truncate: 29 | escape -}}
+                            </span>
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <a href="{{ link.url }}">
+              <span>
+                {{- link.title | escape -}}
+              </span>
+            </a>
+          {%- endif -%}
+        </li>
+      {% endfor %}
+      <li class="relative py-4 cursor-pointer">
+        More
+        <ul class="p-4" id="more_menu">
+          {% for link in section.settings.menu.links offset: section.settings.number_of_menu %}
+            <li class="pb-4 last:pb-0">
+              <a href="{{ link.url }}">
+                <span class="transition-colors hover:text-cyan-400">
+                  {{- link.title | truncate: 29 | escape -}}
+                </span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </li>
+    </ul>
+  </nav>
 </header>
 <nav class="navbar fixed top-0 bottom-0 w-80 lg:w-[22rem] h-full bg-white shadow-lg p-4 overflow-y-auto z-10 duration-500 md:duration-1000">
   <span class="hide-navbar flex justify-end">
-    {% render 'icons' , icon: 'close' %}
+    {% render 'icons', icon: 'close' %}
   </span>
   <ul class="menu my-4 font-bold">
     {%- for link in section.settings.menu.links -%}
@@ -83,7 +192,7 @@
               <span>
                 {{- link.title | escape -}}
               </span>
-              {% render 'icons' , icon: 'arrow-bottom' %}
+              {% render 'icons', icon: 'arrow-bottom' %}
             </div>
             <div class="wrapper">
               <ul class="dropdown-child">
@@ -98,7 +207,7 @@
                     {%- else -%}
                       <div class="flex items-center justify-between py-4 border-b ml-2">
                         <span>{{ childlink.title | escape }}</span>
-                        {% render 'icons' , icon: 'arrow-bottom' %}
+                        {% render 'icons', icon: 'arrow-bottom' %}
                       </div>
                       <div class="wrapper">
                         <ul class="dropdown-grandchild">
@@ -108,7 +217,7 @@
                                 {{ grandchildlink.title | escape }}
                               </a>
                             </li>
-                          {%- endfor - %}
+                          {%- endfor %}
                         </ul>
                       </div>
                     {%- endif -%}
@@ -120,9 +229,9 @@
         {%- else -%}
           <div class="py-4 border-b">
             <a href="{{ link.url }}">
-             <span>
-              {{- link.title | escape -}}
-             </span>
+              <span>
+                {{- link.title | escape -}}
+              </span>
             </a>
           </div>
         {%- endif -%}
@@ -130,11 +239,6 @@
     {%- endfor -%}
   </ul>
 </nav>
-<script>
-
- 
-</script>
-
 {% schema %}
 {
   "name": "Header",
@@ -150,8 +254,16 @@
       "id": "menu",
       "default": "main-menu",
       "label": "Menu"
+    },
+    {
+      "type": "range",
+      "id": "number_of_menu",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "label": "Number of menu show on desktop",
+      "default": 6
     }
   ]
 }
 {% endschema %}
-
