@@ -1,0 +1,221 @@
+<style>
+  .cart-drawer {
+    transition: right 0.5s ease;
+  }
+  .cart-drawer--active {
+    right: 0;
+  }
+  .cart-drawer::-webkit-scrollbar {
+    width: 6px;
+  }
+  .cart-drawer::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: 1rem;
+  }
+  .cart-drawer::-webkit-scrollbar-thumb:hover {
+    background-color: var(--base-color);
+  }
+  .cart-drawer-quantity-selector button {
+    all: unset;
+    cursor: pointer;
+  }
+  .cart-drawer-quantity-selector input {
+    width: 3rem;
+    -moz-appearance: textfield;
+    border: none;
+    text-align: center;
+    color: var(--base-color);
+  }
+</style>
+<div class="cart-drawer box-border fixed top-0 bottom-0 right-[-100%] w-80 min-[420px]:w-[420px] h-full bg-[var(--background)] shadow-lg overflow-y-auto z-50">
+  <div class="cart-drawer-box">
+    <header class="flex items-center justify-between p-4 border-b">
+      <h3 class=" text-xl">SHOPPING CART</h3>
+      <button onclick="hideOverlay()" class="cart-drawer-header-right-close" type="button">
+        {% render 'icons', icon: 'close' %}
+      </button>
+    </header>
+    {% form 'cart', cart, class: 'cart-drawer-form' %}
+      {% if cart.item_count == 0 %}
+        <p class="p-4 text-center">Your cart is empty</p>
+      {% else %}
+        {% comment %} mini cart item details {% endcomment %}
+        <div class="px-4">
+          {% for item in cart.items %}
+            <div
+              class="flex items-start gap-5 min-[420px]:gap-0 border-b py-4"
+              data-line-item-key="{{ item.key }}"
+            >
+              <div class="w-24">
+                <img src="{{ item.image | img_url: '70x' }}" alt="{{ item.title }}" class="mb-4">
+                <span
+                  class=" cursor-pointer font-bold text-[var(--accent-color)] remove-button"
+                  data-line-item-keys="{{ item.key }}"
+                  onclick="handleRemoveButtonClick(this)"
+                  >Remove</span
+                >
+              </div>
+              <div>
+                <div class="">
+                  <div class="">
+                    <h3>
+                      <a href="{{ item.url }}">{{ item.product.title }}</a>
+                    </h3>
+                    <span class="">{{ item.variant.title }}</span>
+                    <div class="cart-drawer-quantity-selector flex gap-3 min-[420px]:justify-between mt-2">
+                      <div class="flex items-center justify-around text-center w-28 border border-gray-400 h-7">
+                        <button class="cart-drawer-quantity-selector-minus w-7" type="button">
+                          {% render 'icons', icon: 'minus' %}
+                        </button>
+                        <span class="border-l border-r border-gray-400 text-center w-14">
+                          <input type="text" readonly value="{{ item.quantity }}">
+                        </span>
+                        <button class="cart-drawer-quantity-selector-plus w-7" type="button">
+                          {% render 'icons', icon: 'plus' %}
+                        </button>
+                      </div>
+                      <div class="">
+                        <span class="font-bold">{{ item.final_line_price | money_without_trailing_zeros }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endform %}
+    <footer class="px-4">
+      <div class="flex items-center justify-between py-4 text-xl min-[420px]:text-2xl">
+        <h3>Subtotal</h3>
+        <span class="font-bold">{{ cart.total_price | money_without_trailing_zeros }}</span>
+      </div>
+      <button
+        type="submit"
+        name="checkout"
+        class="cart-drawer-button text-white rounded-sm py-3 text-xl w-full font-bold bg-[var(--highlight-color)]"
+      >
+        PROCEED TO CHECKOUT
+      </button>
+      <p class=" font-bold text-center text-sm min-[420px]:text-base py-4">Shipping & taxes calcualated at checkout</p>
+    </footer>
+  </div>
+</div>
+<script>
+  function openCartDrawer() {
+    document.querySelector('.cart-drawer').classList.add('cart-drawer--active');
+  }
+
+  function closeCartDrawer() {
+    document.querySelector('.cart-drawer').classList.remove('cart-drawer--active');
+  }
+
+  function updateCartItemCounts(count) {
+    document.querySelectorAll('.cart_item_counter').forEach((el) => {
+      el.textContent = count;
+    });
+  }
+  async function updateCartDrawer() {
+    const res = await fetch('/?section_id=cart-drawer');
+    const text = await res.text();
+    const html = document.createElement('div');
+    html.innerHTML = text;
+    const newBox = html.querySelector('.cart-drawer').innerHTML;
+    document.querySelector('.cart-drawer').innerHTML = newBox;
+    addCartDrawerListeners();
+  }
+
+  function addCartDrawerListeners() {
+    // Update quantities
+    document.querySelectorAll('.cart-drawer-quantity-selector div button').forEach((button) => {
+      button.addEventListener('click', async () => {
+        // Get line item key
+        const rootItem = button.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+        const key = rootItem.getAttribute('data-line-item-key');
+
+        // Get new quantity
+        const currentQuantity = Number(button.parentElement.querySelector('input').value);
+        const isUp = button.classList.contains('cart-drawer-quantity-selector-plus');
+        const newQuantity = isUp ? currentQuantity + 1 : currentQuantity - 1;
+
+        // Ajax update
+        const res = await fetch('/cart/update.js', {
+          method: 'post',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ updates: { [key]: newQuantity } }),
+        });
+        const cart = await res.json();
+        updateCartItemCounts(cart.item_count);
+
+        // Update cart
+        updateCartDrawer();
+      });
+    });
+
+    document.querySelector('.cart-drawer-box').addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    document.querySelectorAll('.cart-drawer-header-right-close, .cart-drawer').forEach((el) => {
+      el.addEventListener('click', () => {
+        closeCartDrawer();
+      });
+    });
+  }
+  addCartDrawerListeners();
+
+  async function handleRemoveButtonClick(button) {
+    const lineItemKey = button.getAttribute('data-line-item-keys');
+    const newQuantity = 0;
+    const res = await fetch('/cart/update.js', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ updates: { [lineItemKey]: newQuantity } }),
+    });
+    const cart = await res.json();
+    updateCartItemCounts(cart.item_count);
+    updateCartDrawer();
+  }
+
+  document.querySelectorAll('form[action="/cart/add"]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Submit form with ajax
+      await fetch('/cart/add', {
+        method: 'post',
+        body: new FormData(form),
+      });
+
+      // Get cart count
+      const res = await fetch('/cart.js');
+      const cart = await res.json();
+      updateCartItemCounts(cart.item_count);
+
+      // Update cart
+      await updateCartDrawer();
+
+      // Open cart drawer
+      openCartDrawer();
+    });
+  });
+
+  document.querySelectorAll('a[href="/cart"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      openCartDrawer();
+    });
+  });
+</script>
+{% schema %}
+{
+  "name": "Cart drawer"
+}
+{% endschema %}

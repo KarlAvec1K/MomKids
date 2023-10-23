@@ -1,0 +1,13 @@
+{
+    "sections": {
+      "new_arrival": {
+        "type": "new-arrival",
+        "settings": {
+          "new_arrival_top_margin": 45,
+          "new_arrival_bottom_margin": 0
+        }
+      }
+    },
+    "order": ["new_arrival"]
+  }
+  

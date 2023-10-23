@@ -66,8 +66,9 @@ customElements.define("localization-form", LocalizationForm);
 /* ----------- Handling the overlay element ------------------------*/
 const overlay = document.querySelector(".overlay");
 const desktopSearchBar = document.querySelector(".desktop-searchbar");
-const navbar = document.querySelector(".navbar");
+const mobileNavbar = document.querySelector(".navbar");
 const mobileSearchBar = document.querySelector(".mobile-search-bar");
+const cartDrawer = document.querySelector(".cart-drawer");
 const showOverlay = () => {
   overlay.style.display = "block";
 };
@@ -77,62 +78,10 @@ const hideOverlay = () => {
 overlay.addEventListener("click", () => {
   overlay.style.display = "none";
   desktopSearchBar.style.zIndex = "0";
-  navbar.classList.remove("active");
+  mobileNavbar.classList.remove("active");
   mobileSearchBar.classList.remove("active");
+  cartDrawer.classList.remove("cart-drawer--active");
 });
 desktopSearchBar.addEventListener("click", () => {
   desktopSearchBar.style.zIndex = "10";
 });
-/*---- Define a controller class for managing toggle behavior ---*/
-class ToggleController {
-  constructor(openSelector, closeSelector, element, overlayElm) {
-    this.openToggle = document.querySelector(openSelector);
-    this.closeToggle = document.querySelector(closeSelector);
-    this.overlay = document.querySelector(overlayElm);
-    this.element = document.querySelector(element);
-    this.openToggle.addEventListener("click", this.handleOpenClick.bind(this));
-    this.closeToggle.addEventListener(
-      "click",
-      this.handleCloseClick.bind(this)
-    );
-  }
-
-  handleOpenClick() {
-    this.element.classList.add("active");
-    this.overlay.style.display = "block";
-    document.body.style.overflow = "hidden";
-  }
-
-  handleCloseClick() {
-    this.element.classList.remove("active");
-    this.overlay.style.display = "none";
-    document.body.style.overflow = "auto";
-  }
-}
-
-const toggleMenu = new ToggleController(
-  ".hamburger-menu",
-  ".hide-navbar",
-  ".navbar",
-  ".overlay"
-);
-
-class MenuDropdownManager {
-  constructor() {
-    this.caretIcons = document.querySelectorAll(".icon-dropdown");
-    this.caretIcons.forEach((icon) => {
-      icon.addEventListener("click", () => this.toggleDropdown(icon));
-    });
-  }
-  toggleDropdown(icon) {
-    const menuLink = icon.closest(".menu-link");
-    const dropdown2 = menuLink.querySelector(".wrapper");
-    dropdown2.classList.toggle("open");
-  }
-}
-const menuDropdownManager = new MenuDropdownManager();
-
-const handleSearchVisibility = () => {
-  const toggleElement = document.querySelector(".mobile-search-bar");
-  toggleElement.classList.toggle("active");
-};

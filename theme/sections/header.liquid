@@ -2,6 +2,9 @@
   .header__logo-img{
     width: {{settings.logo_width}}px;
   }
+  .desktop_nav .main_menu li {
+    position: relative;
+  }
   .desktop_nav .main_menu li ul {
     background-color: white;
     position: absolute;
@@ -12,11 +15,8 @@
     display: none;
     z-index: 60;
   }
-  .desktop_nav .main_menu li ul li {
-    width: 100%;
-  }
   .desktop_nav .main_menu li ul li ul {
-    left: 230px;
+    left: 245px;
     top: 0;
   }
   .desktop_nav .main_menu li:focus-within > ul,
@@ -24,7 +24,12 @@
     display: initial;
   }
   #more_menu{
-    left: -200px;
+    left: -190px;
+  }
+  /* For mobile navigation menu */
+  .is-nav-active.active{
+    background-color: var(--base-color) !important;
+    color: var(--background) !important;
   }
 </style>
 <header class="header relative bg-white shadow-md">
@@ -90,16 +95,29 @@
           </div>
         {% endform %}
       </localization-form>
-      <span class="md:hidden" onclick="showOverlay();handleSearchVisibility()">
+      <span class="mobile-serach-icon md:hidden" onclick="showOverlay();handleSearchVisibility()">
         {% render 'icons', icon: 'search' %}
       </span>
       <span onclick="showOverlay()">
-        {% render 'icons', icon: 'cart' %}
+        <a href="{{ routes.cart_url }}">
+          <div class="cart_icon_container relative">
+            {% render 'icons', icon: 'cart' %}
+            {% if cart.item_count > 0 %}
+              <span class="cart_item_counter w-6 absolute bg-[var(--highlight-color)] rounded-[50%] top-[-0.9rem] left-2 py-1 text-center text-white font-bold text-xs">
+                {{- cart.item_count }}
+              </span>
+            {% else %}
+              <span class="cart_item_counter w-6 absolute bg-[var(--highlight-color)] rounded-[50%] top-[-0.9rem] left-2 py-1 text-center text-white font-bold text-xs"
+                >0</span
+              >
+            {% endif %}
+          </div>
+        </a>
       </span>
     </div>
     <div class="mobile-search-bar absolute inset-0 outline-none border-none z-10">
       <input
-        class="w-full h-full italic px-4 outline-none border-none"
+        class="mobile-serach-box w-full h-full italic px-4 outline-none border-none"
         type="search"
         name=""
         id=""
@@ -113,28 +131,29 @@
       </span>
     </div>
   </div>
+  {% comment %} Desktop navigation menu {% endcomment %}
   <nav class="desktop_nav hidden xl:block px-4 font-bold bg-[var(--secondary-background-color)]">
     <ul class="main_menu flex items-center justify-between">
       {% for link in section.settings.menu.links limit: section.settings.number_of_menu %}
-        <li class="relative py-4">
+        <li class="py-4">
           {%- if link.links != blank -%}
             <a href="{{ link.url }}">
               <span>
                 {{- link.title | escape -}}
               </span>
             </a>
-            <ul class="p-4 space-y-4 font-medium">
+            <ul class="space-y-4 font-medium">
               {%- for childlink in link.links -%}
-                <li>
+                <li class="first:pt-4 px-4 last:pb-4">
                   {%- if childlink.links == blank -%}
                     <a href="{{ childlink.url }}">
-                      <span class="transition-colors hover:text-cyan-400">
+                      <span class="inline-block w-full transition-colors hover:text-cyan-400">
                         {{- childlink.title | truncate: 29 | escape -}}
                       </span>
                     </a>
                   {%- else -%}
                     <a href="{{ childlink.url }}">
-                      <span class="transition-colors hover:text-cyan-400">
+                      <span class="inline-block w-full transition-colors hover:text-cyan-400">
                         {{- childlink.title | truncate: 29 | escape -}}
                       </span>
                     </a>
@@ -142,7 +161,7 @@
                       {%- for grandchildlink in childlink.links -%}
                         <li>
                           <a href="{{ grandchildlink.url }}">
-                            <span class="transition-colors hover:text-cyan-400">
+                            <span class="inline-block w-full transition-colors hover:text-cyan-400">
                               {{- grandchildlink.title | truncate: 29 | escape -}}
                             </span>
                           </a>
@@ -162,25 +181,33 @@
           {%- endif -%}
         </li>
       {% endfor %}
-      <li class="relative py-4 cursor-pointer">
-        More
-        <ul class="p-4" id="more_menu">
-          {% for link in section.settings.menu.links offset: section.settings.number_of_menu %}
-            <li class="pb-4 last:pb-0">
-              <a href="{{ link.url }}">
-                <span class="transition-colors hover:text-cyan-400">
-                  {{- link.title | truncate: 29 | escape -}}
-                </span>
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </li>
+      {% if section.settings.menu.links.size != section.settings.number_of_menu %}
+        <li class="py-4 cursor-pointer">
+          <span class="flex items-center">
+            <span>More</span>
+            <span class="">
+              {% render 'icons', icon: 'arrow-bottom' %}
+            </span>
+          </span>
+          <ul class="p-4" id="more_menu">
+            {% for link in section.settings.menu.links offset: section.settings.number_of_menu %}
+              <li class="pb-4 last:pb-0">
+                <a href="{{ link.url }}">
+                  <span class="inline-block w-full transition-colors hover:text-cyan-400">
+                    {{- link.title | truncate: 29 | escape -}}
+                  </span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endif %}
     </ul>
   </nav>
 </header>
-<nav class="navbar fixed top-0 bottom-0 w-80 lg:w-[22rem] h-full bg-white shadow-lg p-4 overflow-y-auto z-10 duration-500 md:duration-1000">
-  <span class="hide-navbar flex justify-end">
+{% comment %} Mobile navigation menu {% endcomment %}
+<nav class="navbar fixed top-0 bottom-0 w-80 lg:w-[22rem] h-full bg-white shadow-lg py-4 overflow-y-auto z-10 duration-500 md:duration-1000">
+  <span class="hide-navbar flex justify-end pr-4">
     {% render 'icons', icon: 'close' %}
   </span>
   <ul class="menu my-4 font-bold">
@@ -188,9 +215,9 @@
       <li class="menu-link first:border-t">
         {%- if link.links != blank -%}
           <div>
-            <div class="flex items-center justify-between py-4 border-b">
+            <div class="is-nav-active flex items-center justify-between p-4 border-b">
               <span>
-                {{- link.title | escape -}}
+                {{- link.title | truncate: 35 | escape -}}
               </span>
               {% render 'icons', icon: 'arrow-bottom' %}
             </div>
@@ -199,24 +226,24 @@
                 {%- for childlink in link.links -%}
                   <li class="menu-link">
                     {%- if childlink.links == blank -%}
-                      <div class="py-4 border-b ml-2">
-                        <a href="{{ childlink.url }}">
-                          {{ childlink.title | escape }}
-                        </a>
-                      </div>
+                      <a href="{{ childlink.url }}" class="">
+                        <div class="is-nav-active py-4 border-b pl-6">
+                          {{ childlink.title | truncate: 35 | escape }}
+                        </div>
+                      </a>
                     {%- else -%}
-                      <div class="flex items-center justify-between py-4 border-b ml-2">
-                        <span>{{ childlink.title | escape }}</span>
+                      <div class="is-nav-active flex items-center justify-between py-4 border-b pl-6 pr-4">
+                        <span>{{ childlink.title | truncate: 35 | escape }}</span>
                         {% render 'icons', icon: 'arrow-bottom' %}
                       </div>
                       <div class="wrapper">
                         <ul class="dropdown-grandchild">
                           {%- for grandchildlink in childlink.links -%}
-                            <li class="menu-link py-4 border-b ml-6">
-                              <a href="{{ grandchildlink.url }}">
-                                {{ grandchildlink.title | escape }}
-                              </a>
-                            </li>
+                            <a href="{{ grandchildlink.url }}">
+                              <li class="is-nav-active menu-link py-4 border-b pl-8">
+                                {{ grandchildlink.title | truncate: 35 | escape }}
+                              </li>
+                            </a>
                           {%- endfor %}
                         </ul>
                       </div>
@@ -227,18 +254,81 @@
             </div>
           </div>
         {%- else -%}
-          <div class="py-4 border-b">
-            <a href="{{ link.url }}">
+          <a href="{{ link.url }}">
+            <div class="is-nav-active p-4 border-b">
               <span>
-                {{- link.title | escape -}}
+                {{- link.title | truncate: 35 | escape -}}
               </span>
-            </a>
-          </div>
+            </div>
+          </a>
         {%- endif -%}
       </li>
     {%- endfor -%}
   </ul>
 </nav>
+<script>
+  /*---- Define a controller for managing toggle behavior for mobile navigation menu ---*/
+  class ToggleController {
+    constructor(openSelector, closeSelector, element, overlayElm) {
+      this.openToggle = document.querySelector(openSelector);
+      this.closeToggle = document.querySelector(closeSelector);
+      this.overlay = document.querySelector(overlayElm);
+      this.element = document.querySelector(element);
+      this.openToggle.addEventListener('click', this.handleOpenClick.bind(this));
+      this.closeToggle.addEventListener('click', this.handleCloseClick.bind(this));
+    }
+
+    handleOpenClick() {
+      this.element.classList.add('active');
+      this.overlay.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    handleCloseClick() {
+      this.element.classList.remove('active');
+      this.overlay.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  }
+  const toggleMenu = new ToggleController('.hamburger-menu', '.hide-navbar', '.navbar', '.overlay');
+  /*---- Define a controller for managing dropdown behavior for mobile navigation menu ---*/
+  class MenuDropdownManager {
+    constructor() {
+      this.caretIcons = document.querySelectorAll('.icon-dropdown');
+      this.caretIcons.forEach((icon) => {
+        icon.addEventListener('click', () => this.toggleDropdown(icon));
+      });
+    }
+    toggleDropdown(icon) {
+      const menuLink = icon.closest('.menu-link');
+      const dropdown2 = menuLink.querySelector('.wrapper');
+      dropdown2.classList.toggle('open');
+    }
+  }
+  const menuDropdownManager = new MenuDropdownManager();
+  /*----Handling mobile search visibility and focus ---*/
+  const mobileSerachBox = document.querySelector('.mobile-serach-box');
+  const toggleElement = document.querySelector('.mobile-search-bar');
+  const handleSearchVisibility = () => {
+    mobileSerachBox.focus();
+    mobileSerachBox.selectionStart = mobileSerachBox.selectionEnd = mobileSerachBox.value.length;
+    toggleElement.classList.toggle('active');
+  };
+  /*----Handling color change on active mobile navigation menu link ---*/
+  const navItems = document.querySelectorAll('.is-nav-active');
+  const hideNavbar = document.querySelector('.hide-navbar');
+  navItems.forEach((item) => {
+    item.addEventListener('click', () => {
+      navItems.forEach((item) => item.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+  hideNavbar.addEventListener('click', () => {
+    navItems.forEach((item) => {
+      item.classList.remove('active');
+    });
+  });
+</script>
 {% schema %}
 {
   "name": "Header",
@@ -261,7 +351,7 @@
       "min": 1,
       "max": 12,
       "step": 1,
-      "label": "Number of menu show on desktop",
+      "label": "Number of menu links show on desktop",
       "default": 6
     }
   ]

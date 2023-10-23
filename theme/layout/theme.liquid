@@ -24,17 +24,16 @@
     {% endif %}
 
     {{ content_for_header }}
-
   </head>
 
   <body>
-
+    <div class="overlay z-10"></div>
     {% section 'header' %}
 
     <main>
       {{ content_for_layout }}
     </main>
-    
-    <div class="overlay"></div>
+
+    {% section 'cart-drawer' %}
   </body>
 </html>

@@ -1,0 +1,91 @@
+<style>
+  .new_arrival_container{
+    margin-top: {{section.settings.new_arrival_top_margin| times: 0.5 | round: 0}}px;
+    margin-bottom: {{section.settings.new_arrival_bottom_margin| times: 0.5 | round: 0}}px;
+  }
+  @media screen and (min-width: 768px) {
+    .new_arrival_container {
+      margin-top: {{section.settings.new_arrival_top_margin}}px;
+      margin-bottom: {{section.settings.new_arrival_bottom_margin}}px;
+    }
+  }
+  .new_arrival_container h1{
+    text-align: center;
+    color: var(--accent-color);
+    margin-bottom:{{section.settings.new_arrival_top_margin| times: 0.5 | round: 0}}px;
+  }
+  @media screen and (min-width: 768px) {
+    .new_arrival_container h1{
+      margin-bottom:{{section.settings.new_arrival_top_margin}}px;
+    }
+  }
+</style>
+<section class="new_arrival_container">
+  <h1>These three products are for testing cart functionality</h1>
+  <div class="new_arrival_items">
+    <div class="product_card_container grid grid-cols-3 pb-10">
+      {% for product in collections.frontpage.products %}
+        <a href="{{product.url}}" class="product_card">
+          <img src="{{product.featured_image | image_url: width: 250}}" alt="">
+          <div class="product_content">
+            <p class="brand">Brand : {{ product.vendor }}</p>
+            <p>{{ product.title }}</p>
+            <div class="price_container">
+              <p class="current_price">{{ product.price | money_without_trailing_zeros }}</p>
+              <p class="real_price">{{ product.compare_at_price | money_without_trailing_zeros }}</p>
+            </div>
+            {% if product.options_by_name.size.values.size < 2 and product.options_by_name.color.values.size < 2 %}
+              {% form 'product', product %}
+                <input
+                  id="product_id"
+                  type="hidden"
+                  name="id"
+                  value="{{product.selected_or_first_available_variant.id}}"
+                >
+                <button class="product_card_add_to_cart">Add to cart</button>
+              {% endform %}
+            {% else %}
+              <button class="product_card_select">Select</button>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "New Arrival",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section margin"
+    },
+    {
+      "type": "range",
+      "id": "new_arrival_top_margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 45
+    },
+    {
+      "type": "range",
+      "id": "new_arrival_bottom_margin",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Bottom margin",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "New Arrival"
+    }
+  ]
+}
+{% endschema %}
