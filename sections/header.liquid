@@ -1,0 +1,359 @@
+<style>
+  .header__logo-img{
+    width: {{settings.logo_width}}px;
+  }
+  .desktop_nav .main_menu li {
+    position: relative;
+  }
+  .desktop_nav .main_menu li ul {
+    background-color: white;
+    position: absolute;
+    top: 3.6rem;
+    left: 0;
+    width: 250px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    display: none;
+    z-index: 60;
+  }
+  .desktop_nav .main_menu li ul li ul {
+    left: 245px;
+    top: 0;
+  }
+  .desktop_nav .main_menu li:focus-within > ul,
+  .desktop_nav .main_menu li:hover > ul {
+    display: initial;
+  }
+  #more_menu{
+    left: -190px;
+  }
+  /* For mobile navigation menu */
+  .is-nav-active.active{
+    background-color: var(--base-color) !important;
+    color: var(--background) !important;
+  }
+</style>
+<header class="header relative bg-white shadow-md">
+  <div class="flex items-center justify-between p-4">
+    <div class="flex items-center gap-x-4">
+      <span class="hamburger-menu xl:hidden">
+        {% render 'icons', icon: 'hamburger' %}
+      </span>
+      <a
+        href="{{ routes.root_url }}"
+        class="absolute md:relative left-[50%] md:left-0 translate-x-[-50%] md:translate-x-[0]"
+      >
+        {%- if settings.logo != blank -%}
+          <img class="header__logo-img" src="{{ settings.logo | image_url: width: settings.logo_width}} " alt="logo">
+        {%- else -%}
+          <span>{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+    <div class="desktop-searchbar hidden md:flex relative w-56 lg:w-80" onclick="showOverlay()">
+      <input
+        type="search"
+        class="p-3 lg:p-2.5 italic rounded text-xs font-medium w-56 lg:w-80 lg:text-sm border-stone-300"
+        placeholder="{{section.settings.search_box_placeholder_text}}"
+      >
+      <span class="absolute right-2 top-1 lg:left-72 lg:top-1">
+        {% render 'icons', icon: 'search' %}
+      </span>
+    </div>
+    <div class="flex items-center gap-x-2 sm:gap-x-4">
+      <localization-form class="hidden md:block">
+        {% form 'localization' %}
+          <div class="disclosure md:relative">
+            <button type="button" class="disclosure__button" aria-expanded="false" aria-controls="CountryList">
+              ({{ localization.country.currency.iso_code }}
+              {{ localization.country.currency.symbol }})
+              <span class="inline-flex">
+                {% render 'icons', icon: 'arrow-bottom' %}
+              </span>
+            </button>
+            <ul
+              id="CountryList"
+              role="list"
+              class="disclosure__list absolute z-10 top-8 w-full shadow-[0px_1px_6px_0px_rgba(0,0,0,0.3)] bg-white p-2"
+              hidden
+            >
+              {% for country in localization.available_countries %}
+                <li class="disclosure__item first:mt-0 mt-2" tabindex="-1">
+                  <a
+                    href="#"
+                    {% if country.iso_code == localization.country.iso_code %}
+                      aria-current="true"
+                    {% endif %}
+                    data-value="{{ country.iso_code }}"
+                  >
+                    {{ country.currency.iso_code }}
+                    {{ country.currency.symbol }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+            <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+          </div>
+        {% endform %}
+      </localization-form>
+      <span class="mobile-serach-icon md:hidden" onclick="showOverlay();handleSearchVisibility()">
+        {% render 'icons', icon: 'search' %}
+      </span>
+      <span onclick="showOverlay()">
+        <a href="{{ routes.cart_url }}">
+          <div class="cart_icon_container relative">
+            {% render 'icons', icon: 'cart' %}
+            {% if cart.item_count > 0 %}
+              <span class="cart_item_counter w-6 absolute bg-[var(--highlight-color)] rounded-[50%] top-[-0.9rem] left-2 py-1 text-center text-white font-bold text-xs">
+                {{- cart.item_count }}
+              </span>
+            {% else %}
+              <span class="cart_item_counter w-6 absolute bg-[var(--highlight-color)] rounded-[50%] top-[-0.9rem] left-2 py-1 text-center text-white font-bold text-xs"
+                >0</span
+              >
+            {% endif %}
+          </div>
+        </a>
+      </span>
+    </div>
+    <div class="mobile-search-bar absolute inset-0 outline-none border-none z-10">
+      <input
+        class="mobile-serach-box w-full h-full italic px-4 outline-none border-none"
+        type="search"
+        name=""
+        id=""
+        placeholder="{{section.settings.search_box_placeholder_text}}"
+      >
+      <span class="absolute right-4 top-3.5">
+        {% render 'icons', icon: 'search' %}
+      </span>
+      <span class="absolute right-14 top-[18px]" onclick="hideOverlay();handleSearchVisibility()">
+        {% render 'icons', icon: 'close' %}
+      </span>
+    </div>
+  </div>
+  {% comment %} Desktop navigation menu {% endcomment %}
+  <nav class="desktop_nav hidden xl:block px-4 font-bold bg-[var(--secondary-background-color)]">
+    <ul class="main_menu flex items-center justify-between">
+      {% for link in section.settings.menu.links limit: section.settings.number_of_menu %}
+        <li class="py-4">
+          {%- if link.links != blank -%}
+            <a href="{{ link.url }}">
+              <span>
+                {{- link.title | escape -}}
+              </span>
+            </a>
+            <ul class="space-y-4 font-medium">
+              {%- for childlink in link.links -%}
+                <li class="first:pt-4 px-4 last:pb-4">
+                  {%- if childlink.links == blank -%}
+                    <a href="{{ childlink.url }}">
+                      <span class="inline-block w-full transition-colors hover:text-cyan-400">
+                        {{- childlink.title | truncate: 29 | escape -}}
+                      </span>
+                    </a>
+                  {%- else -%}
+                    <a href="{{ childlink.url }}">
+                      <span class="inline-block w-full transition-colors hover:text-cyan-400">
+                        {{- childlink.title | truncate: 29 | escape -}}
+                      </span>
+                    </a>
+                    <ul class="p-4 space-y-4">
+                      {%- for grandchildlink in childlink.links -%}
+                        <li>
+                          <a href="{{ grandchildlink.url }}">
+                            <span class="inline-block w-full transition-colors hover:text-cyan-400">
+                              {{- grandchildlink.title | truncate: 29 | escape -}}
+                            </span>
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <a href="{{ link.url }}">
+              <span>
+                {{- link.title | escape -}}
+              </span>
+            </a>
+          {%- endif -%}
+        </li>
+      {% endfor %}
+      {% if section.settings.menu.links.size != section.settings.number_of_menu %}
+        <li class="py-4 cursor-pointer">
+          <span class="flex items-center">
+            <span>More</span>
+            <span class="">
+              {% render 'icons', icon: 'arrow-bottom' %}
+            </span>
+          </span>
+          <ul class="p-4" id="more_menu">
+            {% for link in section.settings.menu.links offset: section.settings.number_of_menu %}
+              <li class="pb-4 last:pb-0">
+                <a href="{{ link.url }}">
+                  <span class="inline-block w-full transition-colors hover:text-cyan-400">
+                    {{- link.title | truncate: 29 | escape -}}
+                  </span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+</header>
+{% comment %} Mobile navigation menu {% endcomment %}
+<nav class="navbar fixed top-0 bottom-0 w-80 lg:w-[22rem] h-full bg-white shadow-lg py-4 overflow-y-auto z-10 duration-500 md:duration-1000">
+  <span class="hide-navbar flex justify-end pr-4">
+    {% render 'icons', icon: 'close' %}
+  </span>
+  <ul class="menu my-4 font-bold">
+    {%- for link in section.settings.menu.links -%}
+      <li class="menu-link first:border-t">
+        {%- if link.links != blank -%}
+          <div>
+            <div class="is-nav-active flex items-center justify-between p-4 border-b">
+              <span>
+                {{- link.title | truncate: 35 | escape -}}
+              </span>
+              {% render 'icons', icon: 'arrow-bottom' %}
+            </div>
+            <div class="wrapper">
+              <ul class="dropdown-child">
+                {%- for childlink in link.links -%}
+                  <li class="menu-link">
+                    {%- if childlink.links == blank -%}
+                      <a href="{{ childlink.url }}" class="">
+                        <div class="is-nav-active py-4 border-b pl-6">
+                          {{ childlink.title | truncate: 35 | escape }}
+                        </div>
+                      </a>
+                    {%- else -%}
+                      <div class="is-nav-active flex items-center justify-between py-4 border-b pl-6 pr-4">
+                        <span>{{ childlink.title | truncate: 35 | escape }}</span>
+                        {% render 'icons', icon: 'arrow-bottom' %}
+                      </div>
+                      <div class="wrapper">
+                        <ul class="dropdown-grandchild">
+                          {%- for grandchildlink in childlink.links -%}
+                            <a href="{{ grandchildlink.url }}">
+                              <li class="is-nav-active menu-link py-4 border-b pl-8">
+                                {{ grandchildlink.title | truncate: 35 | escape }}
+                              </li>
+                            </a>
+                          {%- endfor %}
+                        </ul>
+                      </div>
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          </div>
+        {%- else -%}
+          <a href="{{ link.url }}">
+            <div class="is-nav-active p-4 border-b">
+              <span>
+                {{- link.title | truncate: 35 | escape -}}
+              </span>
+            </div>
+          </a>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+</nav>
+<script>
+  /*---- Define a controller for managing toggle behavior for mobile navigation menu ---*/
+  class ToggleController {
+    constructor(openSelector, closeSelector, element, overlayElm) {
+      this.openToggle = document.querySelector(openSelector);
+      this.closeToggle = document.querySelector(closeSelector);
+      this.overlay = document.querySelector(overlayElm);
+      this.element = document.querySelector(element);
+      this.openToggle.addEventListener('click', this.handleOpenClick.bind(this));
+      this.closeToggle.addEventListener('click', this.handleCloseClick.bind(this));
+    }
+
+    handleOpenClick() {
+      this.element.classList.add('active');
+      this.overlay.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    handleCloseClick() {
+      this.element.classList.remove('active');
+      this.overlay.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  }
+  const toggleMenu = new ToggleController('.hamburger-menu', '.hide-navbar', '.navbar', '.overlay');
+  /*---- Define a controller for managing dropdown behavior for mobile navigation menu ---*/
+  class MenuDropdownManager {
+    constructor() {
+      this.caretIcons = document.querySelectorAll('.icon-dropdown');
+      this.caretIcons.forEach((icon) => {
+        icon.addEventListener('click', () => this.toggleDropdown(icon));
+      });
+    }
+    toggleDropdown(icon) {
+      const menuLink = icon.closest('.menu-link');
+      const dropdown2 = menuLink.querySelector('.wrapper');
+      dropdown2.classList.toggle('open');
+    }
+  }
+  const menuDropdownManager = new MenuDropdownManager();
+  /*----Handling mobile search visibility and focus ---*/
+  const mobileSerachBox = document.querySelector('.mobile-serach-box');
+  const toggleElement = document.querySelector('.mobile-search-bar');
+  const handleSearchVisibility = () => {
+    mobileSerachBox.focus();
+    mobileSerachBox.selectionStart = mobileSerachBox.selectionEnd = mobileSerachBox.value.length;
+    toggleElement.classList.toggle('active');
+  };
+  /*----Handling color change on active mobile navigation menu link ---*/
+  const navItems = document.querySelectorAll('.is-nav-active');
+  const hideNavbar = document.querySelector('.hide-navbar');
+  navItems.forEach((item) => {
+    item.addEventListener('click', () => {
+      navItems.forEach((item) => item.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+  hideNavbar.addEventListener('click', () => {
+    navItems.forEach((item) => {
+      item.classList.remove('active');
+    });
+  });
+</script>
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "text",
+      "id": "search_box_placeholder_text",
+      "label": "Search box placeholder text",
+      "default": "What are you looking for?"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "Menu"
+    },
+    {
+      "type": "range",
+      "id": "number_of_menu",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "label": "Number of menu links show on desktop",
+      "default": 6
+    }
+  ]
+}
+{% endschema %}
